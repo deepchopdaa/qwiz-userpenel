@@ -15,22 +15,17 @@
 
 
 
-
-// middleware/upload.js
 const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../cloudinary.js");
 
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: "media", // Cloudinary folder name
-        allowed_formats: ["jpg", "jpeg", "png", "gif", "mp4"],
-        transformation: [{ width: 800, height: 600, crop: "limit" }],
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'public/uploads');
     },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname); // or use Date.now() + '-' + file.originalname
+    }
 });
+const upload = multer({ storage });
 
-const parser = multer({ storage });
 
-module.exports = parser;
-
+module.exports = upload;
