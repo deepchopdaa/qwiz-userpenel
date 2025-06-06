@@ -22,6 +22,7 @@ const CreateBlog = async (req, res) => {
         return res.status(500).send("Internal server Error", e)
     }
 }
+
 const GetBlog = async (req, res) => {
     try {
         console.log("Get A Blog Api Called !")
@@ -96,16 +97,21 @@ const DeleteBlog = async (req, res) => {
 const likeBlog = async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
-        const userId = new mongoose.Types.ObjectId(req.user.id); // ✅ convert to ObjectId
 
+        console.log(blog)
         if (!blog) return res.status(404).json({ message: "Blog not found" });
 
-        const alreadyLiked = blog.likes.some(id => id.equals(userId)); // ✅ use equals()
+        const user = req.user
+        console.log(user)
+        const id = user.id
+
+        console.log(id)
+        const alreadyLiked = blog.likes.some(id => id.equals(id)); // ✅ use equals()
 
         if (alreadyLiked) {
-            blog.likes.pull(userId);  // ✅ Correct field: blog.likes
+            blog.likes.pull(id);  // ✅ Correct field: blog.likes
         } else {
-            blog.likes.push(userId);
+            blog.likes.push(id);
         }
 
         await blog.save();
@@ -121,19 +127,25 @@ const likeBlog = async (req, res) => {
 // POST /api/blogs/:id/comment
 const commentOnBlog = async (req, res) => {
     try {
+        console.log("comment api called!")
         const blog = await Blog.findById(req.params.id);
-        const userId = req.user.id;
+        const user = req.user
+        console.log(user)
+        const id = user.id
+
+        console.log(id)
         const { Comment } = req.body;
 
         if (!blog) return res.status(404).json({ message: "Blog not found" });
         if (!Comment) return res.status(400).json({ message: "Comment is required" });
 
         blog.Comments.push({
-            user: userId,
+            user: id,
             Comment,
         });
 
         await blog.save();
+        console.log(blog)
         res.status(200).json({ message: "Comment added", comments: blog.comments });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
@@ -161,8 +173,12 @@ const UsersBlog = async (req, res) => {
 const SingleBlog = async (req, res) => {
     try {
         const id = req.params.id
+        console.log(id)
         console.log("Get A Blog Api Called !")
-        let Singleblog = await Blog.findById(id)
+        let Singleblog = await Blog.findById(id).populate({
+            path: 'Comments.user',
+            select: 'name' // assuming "name" is the field in your User model
+        });
         if (!Singleblog) {
             return res.status(400).send("Blog Not Available")
         }

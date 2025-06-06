@@ -10,7 +10,7 @@ const BlogSchema = mongoose.Schema({
     },
     mediatype: {
         type: String,
-        enum: ['image', 'image/gif', 'gif', 'video', 'url', 'image/jpeg', "mp4", "video/mp4"],
+        enum: ['image/png', 'image/gif', 'gif', 'video', 'url', 'image/jpeg', "mp4", "video/mp4"],
     },
     media: {
         type: String,
@@ -23,7 +23,7 @@ const BlogSchema = mongoose.Schema({
     Comments: [{
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'Admin'
         },
         Comment: String,
         createAt: {
