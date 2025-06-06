@@ -18,6 +18,24 @@ app.get('/',(req ,res )=>{
     })
 })
 
-app.listen(5000, () => {
-    console.log("App Is Running On 5000")
-})
+
+
+mongoose.connect(`mongodb+srv://deepchopda01:Deepu1155@backend.xpjmz.mongodb.net/test_tt`, { useNewUrlParser: true }).then(() => {
+  console.log('database connected');
+  // var key = fs.readFileSync(__dirname + '/certs/privkey.pem');
+  // var cert = fs.readFileSync(__dirname + '/certs/cert.pem');
+  // var options = {
+  //   key: key,
+  //   cert: cert
+  // };
+  // var server = https.createServer(options, app);
+
+  // https nodejs server
+  //   server.listen(PORT, async () => {
+  //     console.log(`server is running on port : ${PORT}`);
+  //   });
+  // http nodejs server
+  app.listen(5000, async () => {
+    console.log(`server is running on port : 5000`);
+  });
+});
