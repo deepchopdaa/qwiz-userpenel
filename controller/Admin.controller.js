@@ -8,13 +8,13 @@ const Register = async (req, res) => {
         if (!name, !email, !password) {
             return res.status(400).send("All feild Required !")
         }
-        const hashpassword = bcrypt.hash(password, 10)
+        const hashpassword = await bcrypt.hash(password, 10)
         console.log(hashpassword)
-        const res = await User.create({ name, email, password: hashpassword })
-        if (!res) {
+        const responce = await User.create({ name, email, password: hashpassword })
+        if (!responce) {
             return res.status(400).send("User Not Sucessfully Register !")
         }
-        return res.status(201).send(res)
+        return res.status(201).send(responce)
     } catch (e) {
         console.log("Register Error", e)
         return res.status(500).send("Internal server Error")
@@ -36,12 +36,11 @@ const Login = async (req, res) => {
         if (!match) {
             return res.status(400).send("Password Not Match !")
         }
-        const token = jwt.sign(findUser._id, "secretkey", { expiresIn: "1h" })
-
+        const token = jwt.sign({ id: findUser._id }, "secretkey", { expiresIn: "1h" });
         if (!token) {
             return res.status(400).send("User Not Sucessfully Login !")
         }
-        return res.status(201).send(token)
+        return res.status(201).send({ token })
     } catch (e) {
         console.log("Login Error", e)
         return res.status(500).send("Internal server Error")

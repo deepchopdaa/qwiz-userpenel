@@ -1,6 +1,7 @@
 const Blog = require("../model/Blog.model.js")
 const User = require("../model/User.js")
 const fs = require("fs")
+const mongoose = require('mongoose')
 const path = require("path")
 const CreateBlog = async (req, res) => {
     try {
@@ -91,4 +92,85 @@ const DeleteBlog = async (req, res) => {
     }
 }
 
-module.exports = { CreateBlog, GetBlog, UpdateBlog, DeleteBlog }
+// POST /api/blogs/:id/like
+const likeBlog = async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+        const userId = new mongoose.Types.ObjectId(req.user.id); // ✅ convert to ObjectId
+
+        if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+        const alreadyLiked = blog.likes.some(id => id.equals(userId)); // ✅ use equals()
+
+        if (alreadyLiked) {
+            blog.likes.pull(userId);  // ✅ Correct field: blog.likes
+        } else {
+            blog.likes.push(userId);
+        }
+
+        await blog.save();
+        res.status(200).json({
+            message: alreadyLiked ? "Unliked" : "Liked",
+            likes: blog.likes.length
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+// POST /api/blogs/:id/comment
+const commentOnBlog = async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+        const userId = req.user.id;
+        const { Comment } = req.body;
+
+        if (!blog) return res.status(404).json({ message: "Blog not found" });
+        if (!Comment) return res.status(400).json({ message: "Comment is required" });
+
+        blog.Comments.push({
+            user: userId,
+            Comment,
+        });
+
+        await blog.save();
+        res.status(200).json({ message: "Comment added", comments: blog.comments });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+
+
+/* for user api */
+
+const UsersBlog = async (req, res) => {
+    try {
+        console.log("Get A Blog Api Called !")
+        let Allblog = await Blog.find()
+        if (!Allblog) {
+            return res.status(400).send("Blog Not Available")
+        }
+        return res.status(201).send(Allblog)
+    } catch (e) {
+        console.log("Create A Blog Error", e)
+        return res.status(500).send("Internal server Error", e)
+    }
+}
+
+const SingleBlog = async (req, res) => {
+    try {
+        const id = req.params.id
+        console.log("Get A Blog Api Called !")
+        let Singleblog = await Blog.findById(id)
+        if (!Singleblog) {
+            return res.status(400).send("Blog Not Available")
+        }
+        return res.status(201).send(Singleblog)
+    } catch (e) {
+        console.log("Create A Blog Error", e)
+        return res.status(500).send("Internal server Error", e)
+    }
+}
+
+module.exports = { CreateBlog, GetBlog, UpdateBlog, DeleteBlog, SingleBlog, UsersBlog, likeBlog, commentOnBlog }
