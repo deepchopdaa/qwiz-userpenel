@@ -29,10 +29,11 @@ const Login = async (req, res) => {
         }
         const findUser = await User.findOne({ email: email })
         if (!findUser) {
-            return res.status(400).send("User Not Found !") 
+            return res.status(400).send("User Not Found !")
         }
         const checkpassword = findUser.password
-        const match = bcrypt.compare(password, checkpassword)
+        const match = await bcrypt.compare(password, checkpassword)
+        console.log(match)
         if (!match) {
             return res.status(400).send("Password Not Match !")
         }
