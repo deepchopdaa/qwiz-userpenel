@@ -8,7 +8,7 @@ const { AuthVerify, verifyAdmin } = require("../middleware/Auth.middleware.js")
 router.get("/get", AuthVerify, verifyAdmin, GetBlog)
 
 /* add blog admin route */
-router.post("/create", AuthVerify, verifyAdmin, upload.single("media"), CreateBlog)
+router.post("/create", upload.single("media"), CreateBlog)
 /* update and delete admin route */
 router.put("/update/:id", AuthVerify, verifyAdmin, upload.single("media"), UpdateBlog)
 router.delete("/delete/:id", AuthVerify, verifyAdmin, DeleteBlog)

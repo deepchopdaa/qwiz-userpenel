@@ -1,8 +1,11 @@
+require('dotenv').config();
 const express = require("express")
 const Blog = require("./routes/Blog.route.js")
 const { mongoose } = require("mongoose")
 const app = express()
 const cors = require("cors")
+// server.js or index.js
+
 // const Connect = require("./db/connection.js")
 // Connect()
 app.use(cors())

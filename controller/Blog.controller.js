@@ -3,25 +3,36 @@ const User = require("../model/User.js")
 const fs = require("fs")
 const mongoose = require('mongoose')
 const path = require("path")
+// controllers/blogController.js
 const CreateBlog = async (req, res) => {
     try {
-        console.log("Create A Blog Api Called !")
-        const { title, description } = req.body
-        if (!title, !description) {
-            return res.status(400).send("All feild Required !")
+        const { title, description } = req.body;
+
+        if (!title || !description || !req.file) {
+            return res.status(400).json({ message: 'All fields are required' });
         }
-        console.log(title, description)
-        if (!req.file) {
-            return res.status(400).send("File Not Found !")
-        }
-        console.log(req.file)
-        let newblog = await Blog.create({ title, description, mediatype: req.file.mimetype, media: req.file.path })
-        return res.status(201).send(newblog)
-    } catch (e) {
-        console.log("Create A Blog Error", e)
-        return res.status(500).send("Internal server Error", e)
+
+        // req.file.path will have the Cloudinary URL
+        const mediaUrl = req.file.path;
+        const mediatype = req.file.mimetype;
+
+        // Save blog to database (assuming Blog model)
+        const newBlog = await Blog.create({
+            title,
+            description,
+            media: mediaUrl,
+            mediatype: mediatype
+        });
+
+        return res.status(201).json(newBlog);
+    } catch (err) {
+        console.error('Upload error:', err);
+        return res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};
+
+
+
 
 const GetBlog = async (req, res) => {
     try {
